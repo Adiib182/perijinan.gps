@@ -85,8 +85,11 @@
 
   <div class="modal fade" id="modalRegistrasi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title">Registrasi Tenant</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row"><div class="col-6 mb-3"><label class="form-label">ID Tenant</label><input type="text" id="reg-id" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">Lantai/Blok</label><input type="text" id="reg-lantai" class="form-control"></div></div><div class="mb-3"><label class="form-label">Nama Toko</label><input type="text" id="reg-toko" class="form-control"></div><div class="row"><div class="col-6 mb-3"><label class="form-label">Nama PIC</label><input type="text" id="reg-pic" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">No WhatsApp</label><input type="text" id="reg-wa" class="form-control"></div></div><hr><div class="row"><div class="col-6 mb-3"><label class="form-label">Username</label><input type="text" id="reg-user" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">Password</label><input type="text" id="reg-pass" class="form-control" value="123456"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="submitRegistrasi()" id="btn-reg">Daftarkan Tenant</button></div></div></div></div>
   <div class="modal fade" id="modalBarang" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-success text-white"><h5 class="modal-title">Izin Barang</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Jenis</label><select id="brg-jenis" class="form-select"><option>Masuk</option><option>Keluar</option></select></div><div class="mb-3"><label class="form-label">Tanggal</label><input type="date" id="brg-tgl" class="form-control"></div><div class="mb-3"><label class="form-label">Deskripsi</label><textarea id="brg-deskripsi" class="form-control" rows="2"></textarea></div><div class="row"><div class="col-6 mb-3"><label class="form-label">Pembawa</label><input type="text" id="brg-pembawa" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">No Polisi</label><input type="text" id="brg-nopol" class="form-control"></div></div></div><div class="modal-footer"><button type="button" class="btn gps-green" onclick="submitFormBarang()" id="btn-brg">Kirim</button></div></div></div></div>
+  
   <div class="modal fade" id="modalKerja" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-secondary text-white"><h5 class="modal-title">Izin Kerja</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Vendor</label><input type="text" id="krj-vendor" class="form-control"></div><div class="mb-3"><label class="form-label">Jenis Pekerjaan</label><textarea id="krj-jenis" class="form-control" rows="2"></textarea></div><div class="row"><div class="col-6 mb-3"><label class="form-label">Mulai</label><input type="date" id="krj-mulai" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">Selesai</label><input type="date" id="krj-selesai" class="form-control"></div></div><div class="row"><div class="col-6 mb-3"><label class="form-label">Jam Kerja</label><input type="text" id="krj-jam" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">Jml Pekerja</label><input type="number" id="krj-jml" class="form-control"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="submitFormKerja()" id="btn-krj">Kirim</button></div></div></div></div>
+  
   <div class="modal fade" id="modalPromosi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-info text-white"><h5 class="modal-title">Izin Promosi</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Bentuk Promosi</label><textarea id="prm-bentuk" class="form-control" rows="2"></textarea></div><div class="mb-3"><label class="form-label">Lokasi</label><input type="text" id="prm-lokasi" class="form-control"></div><div class="mb-3"><label class="form-label">Durasi (Hari)</label><input type="number" id="prm-durasi" class="form-control"></div></div><div class="modal-footer"><button type="button" class="btn btn-info text-white" onclick="submitFormPromosi()" id="btn-prm">Kirim</button></div></div></div></div>
+  
   <div class="modal fade" id="modalDiskusi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Tiket Diskusi</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="mb-1"><strong>ID:</strong> <span id="detail-id"></span></p><p class="mb-3"><strong>Status:</strong> <span id="detail-status" class="badge"></span></p><hr><div id="area-chat" class="chat-box mb-3"><div class="text-center text-muted"><small>Memuat diskusi...</small></div></div><div class="input-group"><input type="text" id="input-pesan" class="form-control" placeholder="Ketik pesan / revisi..."><button class="btn btn-primary" onclick="kirimPesan()">Kirim</button></div></div></div></div></div>
 
   <div class="modal fade" id="modalSuratIzin" tabindex="-1">
@@ -120,12 +123,10 @@
     // ==========================================================
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbxiboTYAf-XaUxxYmj2KHQ_cpBtbnNxLlf4jTKsvqtHltyekZCtni-msUUQNokZH8-d/exec';
 
-    // Helper Function untuk memanggil GAS REST API (Pengganti google.script.run)
     async function callBackend(action, data) {
       try {
         const response = await fetch(GAS_URL, {
           method: 'POST',
-          // Mencegah error CORS Preflight dengan menggunakan text/plain
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action: action, data: data })
         });
@@ -267,6 +268,13 @@
         var detailAman = row.detail.replace(/'/g, "\\'").replace(/"/g, "&quot;"); var arrAppv = row.approver ? row.approver.split(",") : [];
         var teksStatus = row.status; if(row.status === "Pending" || row.status === "Need Revise") teksStatus = row.status + " (" + arrAppv.length + "/2)";
 
+        // MODIFIKASI: Menampilkan teks department yang sudah approve
+        var infoApprover = "";
+        if (arrAppv.length > 0) {
+          var namaDept = arrAppv.map(dept => dept.replace("Dept_", "")).join(", ");
+          infoApprover = `<div class="mt-1" style="font-size: 11px; color: #6c757d;">Appv: <strong>${namaDept}</strong></div>`;
+        }
+
         var adaPesanBaru = false; var pengirimTerakhir = row.pengirim_terakhir || "";
         if ((userRole === "Admin_CS" || isDepartemen) && (pengirimTerakhir.includes("Tenant") || pengirimTerakhir.includes("Tamu"))) adaPesanBaru = true;
         if (userRole === "Tenant" && (pengirimTerakhir.includes("Admin") || pengirimTerakhir.includes("Dept"))) adaPesanBaru = true;
@@ -286,7 +294,9 @@
         if (row.status === "Approved") { 
           tombolAksi += `<button class="btn btn-sm btn-primary mb-1 d-block w-100 fw-bold" onclick="tampilkanSuratIzin('${row.id_izin}', '${row.kategori}', '${row.tenant}', '${detailAman}', '${row.tanggal}')">📄 Lihat Surat</button>`;
         }
-        tr.innerHTML = `<td><strong>${row.id_izin}</strong></td><td>${row.kategori}</td><td>${row.tenant}</td><td>${row.detail}</td><td>${row.tanggal}</td><td><span class="badge ${badgeColor}">${teksStatus}</span></td><td>${tombolAksi}</td>`; 
+        
+        // Memasukkan infoApprover ke dalam tabel
+        tr.innerHTML = `<td><strong>${row.id_izin}</strong></td><td>${row.kategori}</td><td>${row.tenant}</td><td>${row.detail}</td><td>${row.tanggal}</td><td><span class="badge ${badgeColor}">${teksStatus}</span>${infoApprover}</td><td>${tombolAksi}</td>`; 
         tbody.appendChild(tr);
       });
       
@@ -322,6 +332,13 @@
         var arrAppv = r.approver ? r.approver.split(",") : [];
         var teksStatus = r.status; if(r.status === "Pending" || r.status === "Need Revise") teksStatus = r.status + " (" + arrAppv.length + "/2)";
         
+        // MODIFIKASI: Menampilkan teks department yang sudah approve di pelacakan Tamu
+        var infoApprover = "";
+        if (arrAppv.length > 0) {
+          var namaDept = arrAppv.map(dept => dept.replace("Dept_", "")).join(", ");
+          infoApprover = `<div class="mt-1" style="font-size: 11px; color: #6c757d;">Appv: <strong>${namaDept}</strong></div>`;
+        }
+        
         var detailAman = r.detail.replace(/'/g, "\\'").replace(/"/g, "&quot;");
         var adaPesanBaru = false; var pTerakhir = r.pengirim_terakhir || "";
         if (pTerakhir.includes("Admin") || pTerakhir.includes("Dept")) adaPesanBaru = true;
@@ -331,7 +348,9 @@
         if (r.status === "Approved") { 
           tombolAksi += `<button class="btn btn-sm btn-primary mb-1 d-block w-100 fw-bold" onclick="tampilkanSuratIzin('${r.id_izin}', '${r.kategori}', '${r.tenant}', '${detailAman}', '${r.tanggal}')">📄 Lihat Surat</button>`;
         }
-        tbody.innerHTML = `<tr><td><strong>${r.id_izin}</strong></td><td>${r.kategori}</td><td>${r.tenant}</td><td>${r.detail}</td><td>${r.tanggal}</td><td><span class="badge ${badgeColor}">${teksStatus}</span></td><td>${tombolAksi}</td></tr>`;
+        
+        // Memasukkan infoApprover ke dalam tabel lacak
+        tbody.innerHTML = `<tr><td><strong>${r.id_izin}</strong></td><td>${r.kategori}</td><td>${r.tenant}</td><td>${r.detail}</td><td>${r.tanggal}</td><td><span class="badge ${badgeColor}">${teksStatus}</span>${infoApprover}</td><td>${tombolAksi}</td></tr>`;
       }
     }
 
@@ -394,7 +413,6 @@
         document.getElementById("tabel-riwayat").innerHTML = "<tr><td colspan='7' class='text-center py-4'>Memproses penolakan...</td></tr>";
         var namaPengirim = sessionStorage.getItem("userRole") + " (" + sessionStorage.getItem("nama") + ")";
         
-        // Simpan pesan penolakan dan reject
         await callBackend('simpanPesanDiskusi', { idIzin: idIzin, pengirim: namaPengirim, pesan: "Izin DITOLAK. Alasan: " + (alasan ? alasan : "Tidak memenuhi syarat.") });
         const res = await callBackend('rejectSuratIzin', { idIzin: idIzin });
         
