@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal CS - Green Pramuka Square</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    .gps-green { background-color: #198754; color: white; border: none; }
+    .gps-green:hover { background-color: #146c43; color: white; }
+    .card-menu { cursor: pointer; transition: 0.3s; }
+    .card-menu:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .chat-box { background: #e9ecef; border-radius: 8px; padding: 10px; max-height: 300px; overflow-y: auto; }
+    .msg-bubble { background: white; padding: 8px 12px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .msg-admin { background: #d1e7dd; border-left: 4px solid #198754; }
+    .surat-digital { border: 2px solid #198754; border-radius: 10px; padding: 20px; background-color: #fff; position: relative; }
+    .stempel-approved { color: #198754; border: 3px solid #198754; display: inline-block; padding: 5px 20px; font-weight: 900; font-size: 24px; border-radius: 8px; letter-spacing: 2px; transform: rotate(-5deg); margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+
+    <div id="login-page" class="card p-4 mx-auto shadow-sm" style="max-width: 400px; margin-top: 10vh; border-radius: 12px;">
+      <div class="text-center mb-4"><h3 style="color: #198754; font-weight: 700;">Green Pramuka Square</h3><p class="text-muted">Portal Layanan Tenant</p></div>
+      <div id="pesan-error" class="alert alert-danger d-none py-2" style="font-size: 14px;"></div>
+      <div class="mb-3"><input type="text" id="username" class="form-control" placeholder="Username"></div>
+      <div class="mb-4"><input type="password" id="password" class="form-control" placeholder="Password / PIN"></div>
+      <button id="btn-login" class="btn gps-green w-100 fw-bold py-2" onclick="prosesLogin()">LOGIN</button>
+      
+      <div class="mt-4 text-center">
+        <hr class="text-muted">
+        <p class="text-muted small mb-2">Bukan tenant permanen / Vendor Event?</p>
+        <button class="btn btn-outline-secondary w-100 fw-bold" onclick="masukModeTamu()">Masuk sebagai Tamu / Vendor</button>
+      </div>
+    </div>
+
+    <div id="dashboard-page" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div><h4 id="welcome-text" style="color: #198754; font-weight: 700; margin: 0;"></h4><span id="role-badge" class="badge bg-primary mt-1"></span> <span id="tenant-id-text" class="fw-bold text-success"></span></div>
+        <button class="btn btn-outline-danger btn-sm fw-bold" onclick="logout()">Logout</button>
+      </div>
+
+      <div id="menu-admin" class="row mb-4 d-none"><div class="col-md-12"><div class="card p-3 bg-white shadow-sm" style="border-radius: 12px; border-left: 5px solid #0d6efd;"><h5 class="mb-3">Panel Manajemen Admin (Viewer)</h5><button class="btn btn-primary" onclick="new bootstrap.Modal(document.getElementById('modalRegistrasi')).show()">➕ Registrasi Akun Tenant Baru</button></div></div></div>
+      <div id="menu-dept" class="row mb-4 d-none"><div class="col-md-12"><div class="card p-3 bg-white shadow-sm" style="border-radius: 12px; border-left: 5px solid #ffc107;"><h5 class="mb-0 text-dark">Akses Departemen: Silakan review dan approve izin di tabel bawah.</h5></div></div></div>
+      
+      <div id="menu-tenant" class="row mb-4 d-none">
+        <div class="col-md-4 mb-2"><div class="card card-menu text-center p-3 text-white gps-green" onclick="bukaModalIzin('modalBarang')"><h5 class="m-0">📦 Izin Barang</h5></div></div>
+        <div class="col-md-4 mb-2"><div class="card card-menu text-center p-3 text-white bg-secondary" onclick="bukaModalIzin('modalKerja')"><h5 class="m-0">🛠️ Izin Kerja</h5></div></div>
+        <div class="col-md-4 mb-2"><div class="card card-menu text-center p-3 text-white bg-info" onclick="bukaModalIzin('modalPromosi')"><h5 class="m-0">📢 Izin Promosi</h5></div></div>
+      </div>
+
+      <div id="area-tabel-utama" class="card p-4 shadow-sm bg-white d-none" style="border-radius: 12px;">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <h5 style="color: #198754; font-weight: 600; margin: 0;">Riwayat Pengajuan Izin</h5>
+          <div class="d-flex gap-2">
+            <input type="text" id="input-pencarian" class="form-control form-control-sm" placeholder="🔍 Cari ID, Tenant, Status..." onkeyup="cariDataTabel()" style="width: 250px;">
+            <button class="btn btn-sm btn-outline-secondary text-nowrap" onclick="loadTabelRiwayat()">🔄 Refresh</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle"><thead class="table-light"><tr><th>ID Izin</th><th>Kategori</th><th>Tenant</th><th>Detail Pengajuan</th><th>Tanggal/Durasi</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tabel-riwayat"><tr><td colspan="7" class="text-center text-muted py-4">Memuat data...</td></tr></tbody></table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <small id="info-halaman" class="text-muted fw-bold"></small><div><button id="btn-prev" class="btn btn-sm btn-outline-primary" onclick="gantiHalaman(-1)">◀ Sebelumnya</button><button id="btn-next" class="btn btn-sm btn-outline-primary ms-1" onclick="gantiHalaman(1)">Selanjutnya ▶</button></div>
+        </div>
+      </div>
+
+      <div id="area-tracker-tamu" class="card p-4 shadow-sm bg-white d-none" style="border-radius: 12px; border-top: 5px solid #0dcaf0;">
+        <h5 style="color: #0dcaf0; font-weight: 600; margin-bottom: 15px;">Lacak Status Izin Anda</h5>
+        <div class="input-group mb-4" style="max-width: 500px;">
+          <input type="text" id="input-tracker-tamu" class="form-control" placeholder="Masukkan ID Izin (Contoh: BRG-1206-123)">
+          <button class="btn btn-info text-white fw-bold" onclick="lacakIzinTamu()" id="btn-lacak">🔍 Cari Izin</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light"><tr><th>ID Izin</th><th>Kategori</th><th>Pemohon</th><th>Detail</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="tabel-lacak-tamu"><tr><td colspan="7" class="text-center text-muted py-3">Silakan masukkan ID Izin untuk melihat detail dan E-Permit.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalRegistrasi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title">Registrasi Tenant</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row"><div class="col-6 mb-3"><label class="form-label">ID Tenant</label><input type="text" id="reg-id" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">Lantai/Blok</label><input type="text" id="reg-lantai" class="form-control"></div></div><div class="mb-3"><label class="form-label">Nama Toko</label><input type="text" id="reg-toko" class="form-control"></div><div class="row"><div class="col-6 mb-3"><label class="form-label">Nama PIC</label><input type="text" id="reg-pic" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">No WhatsApp</label><input type="text" id="reg-wa" class="form-control"></div></div><hr><div class="row"><div class="col-6 mb-3"><label class="form-label">Username</label><input type="text" id="reg-user" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">Password</label><input type="text" id="reg-pass" class="form-control" value="123456"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-primary" onclick="submitRegistrasi()" id="btn-reg">Daftarkan Tenant</button></div></div></div></div>
+  <div class="modal fade" id="modalBarang" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-success text-white"><h5 class="modal-title">Izin Barang</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Jenis</label><select id="brg-jenis" class="form-select"><option>Masuk</option><option>Keluar</option></select></div><div class="mb-3"><label class="form-label">Tanggal</label><input type="date" id="brg-tgl" class="form-control"></div><div class="mb-3"><label class="form-label">Deskripsi</label><textarea id="brg-deskripsi" class="form-control" rows="2"></textarea></div><div class="row"><div class="col-6 mb-3"><label class="form-label">Pembawa</label><input type="text" id="brg-pembawa" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">No Polisi</label><input type="text" id="brg-nopol" class="form-control"></div></div></div><div class="modal-footer"><button type="button" class="btn gps-green" onclick="submitFormBarang()" id="btn-brg">Kirim</button></div></div></div></div>
+  <div class="modal fade" id="modalKerja" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-secondary text-white"><h5 class="modal-title">Izin Kerja</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Vendor</label><input type="text" id="krj-vendor" class="form-control"></div><div class="mb-3"><label class="form-label">Jenis Pekerjaan</label><input type="text" id="krj-jenis" class="form-control"></div><div class="row"><div class="col-6 mb-3"><label class="form-label">Mulai</label><input type="date" id="krj-mulai" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">Selesai</label><input type="date" id="krj-selesai" class="form-control"></div></div><div class="row"><div class="col-6 mb-3"><label class="form-label">Jam Kerja</label><input type="text" id="krj-jam" class="form-control"></div><div class="col-6 mb-3"><label class="form-label">Jml Pekerja</label><input type="number" id="krj-jml" class="form-control"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="submitFormKerja()" id="btn-krj">Kirim</button></div></div></div></div>
+  <div class="modal fade" id="modalPromosi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-info text-white"><h5 class="modal-title">Izin Promosi</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Bentuk Promosi</label><input type="text" id="prm-bentuk" class="form-control"></div><div class="mb-3"><label class="form-label">Lokasi</label><input type="text" id="prm-lokasi" class="form-control"></div><div class="mb-3"><label class="form-label">Durasi (Hari)</label><input type="number" id="prm-durasi" class="form-control"></div></div><div class="modal-footer"><button type="button" class="btn btn-info text-white" onclick="submitFormPromosi()" id="btn-prm">Kirim</button></div></div></div></div>
+  <div class="modal fade" id="modalDiskusi" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title">Tiket Diskusi</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="mb-1"><strong>ID:</strong> <span id="detail-id"></span></p><p class="mb-3"><strong>Status:</strong> <span id="detail-status" class="badge"></span></p><hr><div id="area-chat" class="chat-box mb-3"><div class="text-center text-muted"><small>Memuat diskusi...</small></div></div><div class="input-group"><input type="text" id="input-pesan" class="form-control" placeholder="Ketik pesan / revisi..."><button class="btn btn-primary" onclick="kirimPesan()">Kirim</button></div></div></div></div></div>
+
+  <div class="modal fade" id="modalSuratIzin" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white"><h5 class="modal-title">📄 E-Permit / Surat Izin Resmi</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body p-4 bg-light">
+          <div class="surat-digital shadow-sm">
+            <div style="text-align: center; border-bottom: 2px solid #ccc; padding-bottom: 15px; margin-bottom: 20px;"><h3 style="color: #198754; margin: 0; font-weight: bold;">GREEN PRAMUKA SQUARE</h3><p style="margin: 0; color: #666; font-size: 14px;">Surat Izin Elektronik - Building Management</p></div>
+            <div class="text-center"><div class="stempel-approved">APPROVED</div></div>
+            <table class="table table-borderless fs-6">
+              <tr><td width="140" class="text-muted">Nomor Izin</td><td width="10">:</td><td><strong id="surat-id" class="text-primary fs-5"></strong></td></tr>
+              <tr><td class="text-muted">Kategori</td><td>:</td><td><strong id="surat-kategori"></strong></td></tr>
+              <tr><td class="text-muted">Pemohon</td><td>:</td><td><strong id="surat-tenant"></strong></td></tr>
+              <tr><td class="text-muted">Waktu Pelaksanaan</td><td>:</td><td><strong id="surat-tanggal"></strong></td></tr>
+            </table>
+            <div class="p-3 mt-4 mb-2" style="background-color: #e9ecef; border-left: 5px solid #198754; border-radius: 4px;"><h6 class="text-success fw-bold mb-1">Rincian Aktivitas:</h6><p id="surat-detail" class="m-0 fs-6 text-dark"></p></div>
+            <p class="text-muted text-center mt-4" style="font-size: 12px;">Dokumen ini diterbitkan sah oleh sistem. Tunjukkan layar ini kepada tim Security (Keamanan) atau Manajemen Gedung saat pelaksanaan.</p>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary w-100 fw-bold" data-bs-dismiss="modal">Tutup Dokumen</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ==========================================================
+    // KONFIGURASI API BACKEND (GAS)
+    // MASUKKAN URL WEB APP ANDA DI SINI
+    // ==========================================================
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxiboTYAf-XaUxxYmj2KHQ_cpBtbnNxLlf4jTKsvqtHltyekZCtni-msUUQNokZH8-d/exec';
+
+    // Helper Function untuk memanggil GAS REST API (Pengganti google.script.run)
+    async function callBackend(action, data) {
+      try {
+        const response = await fetch(GAS_URL, {
+          method: 'POST',
+          // Mencegah error CORS Preflight dengan menggunakan text/plain
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: action, data: data })
+        });
+        return await response.json();
+      } catch (error) {
+        console.error("Gagal memanggil backend:", error);
+        return { status: 'error', pesan: 'Gagal terhubung ke server. Periksa koneksi internet.' };
+      }
+    }
+
+    var dataMaster = []; var dataTampil = []; var halamanSaatIni = 1; var barisPerHalaman = 10; var currentIzinId = "";
+
+    async function prosesLogin() {
+      var user = document.getElementById("username").value.trim(); var pass = document.getElementById("password").value.trim();
+      if(!user || !pass) return document.getElementById("pesan-error").innerHTML = "Wajib diisi!", document.getElementById("pesan-error").classList.remove("d-none");
+      
+      document.getElementById("btn-login").innerHTML = "Memeriksa...";
+      const res = await callBackend('verifikasiUser', { username: user, password: pass });
+      berhasilLogin(res);
+    }
+
+    function masukModeTamu() {
+      sessionStorage.setItem("userRole", "Guest");
+      sessionStorage.setItem("nama", "Tamu / Eksternal");
+      sessionStorage.removeItem("idTenant"); 
+      
+      document.getElementById("login-page").classList.add("d-none");
+      document.getElementById("dashboard-page").classList.remove("d-none");
+      document.getElementById("welcome-text").innerHTML = "Portal Tamu / Vendor Eksternal"; 
+      document.getElementById("role-badge").innerHTML = "Guest";
+      document.getElementById("tenant-id-text").innerHTML = "";
+      
+      document.getElementById("menu-tenant").classList.remove("d-none");
+      document.getElementById("area-tabel-utama").classList.add("d-none");
+      document.getElementById("area-tracker-tamu").classList.remove("d-none");
+    }
+
+    function bukaModalIzin(modalId) {
+      if (sessionStorage.getItem("userRole") === "Guest") {
+        var namaPemohon = prompt("PENTING: Masukkan Nama Toko Sementara / Nama Acara / Nama Instansi Anda:");
+        if (!namaPemohon || namaPemohon.trim() === "") return; 
+        sessionStorage.setItem("idTenant", "Tamu: " + namaPemohon);
+      }
+      new bootstrap.Modal(document.getElementById(modalId)).show();
+    }
+
+    function berhasilLogin(res) {
+      document.getElementById("btn-login").innerHTML = "LOGIN";
+      if(res.status === 'sukses') {
+        sessionStorage.setItem("userRole", res.role); sessionStorage.setItem("idTenant", res.id_tenant); sessionStorage.setItem("nama", res.nama_pengguna);
+        document.getElementById("login-page").classList.add("d-none"); document.getElementById("dashboard-page").classList.remove("d-none");
+        document.getElementById("welcome-text").innerHTML = "Selamat datang, " + res.nama_pengguna; document.getElementById("role-badge").innerHTML = res.role;
+        document.getElementById("tenant-id-text").innerHTML = res.role === "Tenant" ? " | ID: " + res.id_tenant : "";
+        
+        if(res.role === "Admin_CS") document.getElementById("menu-admin").classList.remove("d-none");
+        if(res.role.startsWith("Dept_")) document.getElementById("menu-dept").classList.remove("d-none");
+        if(res.role === "Tenant") document.getElementById("menu-tenant").classList.remove("d-none");
+        
+        document.getElementById("area-tabel-utama").classList.remove("d-none");
+        document.getElementById("area-tracker-tamu").classList.add("d-none");
+        loadTabelRiwayat();
+      } else { document.getElementById("pesan-error").innerHTML = res.pesan; document.getElementById("pesan-error").classList.remove("d-none"); }
+    }
+
+    function logout() { 
+      sessionStorage.clear();
+      document.getElementById("username").value = ""; document.getElementById("password").value = "";
+      document.getElementById("dashboard-page").classList.add("d-none"); document.getElementById("menu-admin").classList.add("d-none"); document.getElementById("menu-tenant").classList.add("d-none"); document.getElementById("menu-dept").classList.add("d-none");
+      document.getElementById("area-tabel-utama").classList.add("d-none"); document.getElementById("area-tracker-tamu").classList.add("d-none");
+      document.getElementById("login-page").classList.remove("d-none");
+    }
+
+    async function submitRegistrasi() { 
+      var form = { id_tenant: document.getElementById("reg-id").value, lantai: document.getElementById("reg-lantai").value, nama_toko: document.getElementById("reg-toko").value, nama_pic: document.getElementById("reg-pic").value, whatsapp: document.getElementById("reg-wa").value, username: document.getElementById("reg-user").value, password: document.getElementById("reg-pass").value };
+      if(!form.id_tenant || !form.username) return alert("Wajib diisi!"); 
+      document.getElementById("btn-reg").innerText = "Menyimpan..."; 
+      
+      const res = await callBackend('registrasiTenantBaru', { form: form });
+      alert(res.pesan); 
+      location.reload(); 
+    }
+    
+    function paskaSubmit(res, modalId, btnId) {
+      alert(res.pesan);
+      bootstrap.Modal.getInstance(document.getElementById(modalId)).hide();
+      document.getElementById(btnId).innerText = "Kirim";
+      if(sessionStorage.getItem("userRole") !== "Guest") loadTabelRiwayat();
+    }
+
+    async function submitFormBarang() { 
+      var form = { id_tenant: sessionStorage.getItem("idTenant"), jenis_aktivitas: document.getElementById("brg-jenis").value, tanggal: document.getElementById("brg-tgl").value, deskripsi: document.getElementById("brg-deskripsi").value, pembawa: document.getElementById("brg-pembawa").value, nopol: document.getElementById("brg-nopol").value };
+      if(!form.tanggal || !form.deskripsi) return alert("Lengkapi data!"); 
+      document.getElementById("btn-brg").innerText = "Mengirim..."; 
+      const res = await callBackend('simpanIzinBarang', { form: form });
+      paskaSubmit(res, 'modalBarang', 'btn-brg');
+    }
+
+    async function submitFormKerja() { 
+      var form = { id_tenant: sessionStorage.getItem("idTenant"), vendor: document.getElementById("krj-vendor").value, jenis: document.getElementById("krj-jenis").value, tgl_mulai: document.getElementById("krj-mulai").value, tgl_selesai: document.getElementById("krj-selesai").value, jam_kerja: document.getElementById("krj-jam").value, jml_pekerja: document.getElementById("krj-jml").value };
+      if(!form.vendor || !form.tgl_mulai) return alert("Lengkapi data!"); 
+      document.getElementById("btn-krj").innerText = "Mengirim..."; 
+      const res = await callBackend('simpanIzinKerja', { form: form });
+      paskaSubmit(res, 'modalKerja', 'btn-krj');
+    }
+
+    async function submitFormPromosi() { 
+      var form = { id_tenant: sessionStorage.getItem("idTenant"), bentuk: document.getElementById("prm-bentuk").value, lokasi: document.getElementById("prm-lokasi").value, durasi: document.getElementById("prm-durasi").value };
+      if(!form.bentuk || !form.lokasi) return alert("Lengkapi data!"); 
+      document.getElementById("btn-prm").innerText = "Mengirim..."; 
+      const res = await callBackend('simpanIzinPromosi', { form: form });
+      paskaSubmit(res, 'modalPromosi', 'btn-prm');
+    }
+
+    async function loadTabelRiwayat() {
+      document.getElementById("tabel-riwayat").innerHTML = "<tr><td colspan='7' class='text-center text-muted py-4'>Mengambil data terbaru...</td></tr>";
+      document.getElementById("input-pencarian").value = ""; 
+      
+      const res = await callBackend('ambilSemuaRiwayat', { role: sessionStorage.getItem("userRole"), idTenant: sessionStorage.getItem("idTenant") });
+      siapkanData(res);
+    }
+
+    function siapkanData(data) { dataMaster = data; dataTampil = data; halamanSaatIni = 1; renderHalamanTabel(); }
+    
+    function renderHalamanTabel() {
+      var tbody = document.getElementById("tabel-riwayat");
+      tbody.innerHTML = "";
+      if(!dataTampil || dataTampil.length === 0) { 
+        tbody.innerHTML = "<tr><td colspan='7' class='text-center text-muted py-4'>Tidak ada data ditemukan.</td></tr>";
+        document.getElementById("info-halaman").innerText = "Halaman 0 dari 0"; document.getElementById("btn-prev").disabled = true; document.getElementById("btn-next").disabled = true; return;
+      }
+
+      var userRole = sessionStorage.getItem("userRole"); var isDepartemen = userRole.startsWith("Dept_");
+      var indexAwal = (halamanSaatIni - 1) * barisPerHalaman; var indexAkhir = indexAwal + barisPerHalaman;
+      var dataHalamanIni = dataTampil.slice(indexAwal, indexAkhir);
+      
+      dataHalamanIni.forEach(function(row) {
+        var tr = document.createElement("tr");
+        var badgeColor = "bg-secondary"; if(row.status === "Approved") badgeColor = "bg-success"; else if(row.status === "Rejected") badgeColor = "bg-danger"; else if(row.status === "Need Revise") badgeColor = "bg-warning text-dark";
+        var detailAman = row.detail.replace(/'/g, "\\'").replace(/"/g, "&quot;"); var arrAppv = row.approver ? row.approver.split(",") : [];
+        var teksStatus = row.status; if(row.status === "Pending" || row.status === "Need Revise") teksStatus = row.status + " (" + arrAppv.length + "/2)";
+
+        var adaPesanBaru = false; var pengirimTerakhir = row.pengirim_terakhir || "";
+        if ((userRole === "Admin_CS" || isDepartemen) && (pengirimTerakhir.includes("Tenant") || pengirimTerakhir.includes("Tamu"))) adaPesanBaru = true;
+        if (userRole === "Tenant" && (pengirimTerakhir.includes("Admin") || pengirimTerakhir.includes("Dept"))) adaPesanBaru = true;
+
+        var teksDiskusi = "💬 Diskusi";
+        if (adaPesanBaru) teksDiskusi += ' <span class="badge bg-danger rounded-pill ms-1">New</span>';
+        var tombolAksi = `<button class="btn btn-sm btn-outline-dark mb-1 d-block w-100 fw-bold position-relative" onclick="bukaDiskusi('${row.id_izin}', '${row.status}', '${badgeColor}')">${teksDiskusi}</button>`;
+        
+        if (isDepartemen && row.status !== "Approved" && row.status !== "Rejected") {
+          if(!arrAppv.includes(userRole)) { 
+            tombolAksi += `<div class="d-flex gap-1 mb-1"><button class="btn btn-sm btn-success w-50 fw-bold" onclick="approveSurat('${row.id_izin}', '${userRole}')">✅ Approve</button><button class="btn btn-sm btn-danger w-50 fw-bold" onclick="rejectSurat('${row.id_izin}')">❌ Reject</button></div>`;
+          } else { 
+            tombolAksi += `<small class="text-success d-block text-center fw-bold">✓ Anda menyetujui</small>`;
+          }
+        }
+        
+        if (row.status === "Approved") { 
+          tombolAksi += `<button class="btn btn-sm btn-primary mb-1 d-block w-100 fw-bold" onclick="tampilkanSuratIzin('${row.id_izin}', '${row.kategori}', '${row.tenant}', '${detailAman}', '${row.tanggal}')">📄 Lihat Surat</button>`;
+        }
+        tr.innerHTML = `<td><strong>${row.id_izin}</strong></td><td>${row.kategori}</td><td>${row.tenant}</td><td>${row.detail}</td><td>${row.tanggal}</td><td><span class="badge ${badgeColor}">${teksStatus}</span></td><td>${tombolAksi}</td>`; 
+        tbody.appendChild(tr);
+      });
+      
+      var totalHalaman = Math.ceil(dataTampil.length / barisPerHalaman);
+      document.getElementById("info-halaman").innerText = "Halaman " + halamanSaatIni + " dari " + totalHalaman;
+      document.getElementById("btn-prev").disabled = (halamanSaatIni === 1); document.getElementById("btn-next").disabled = (halamanSaatIni === totalHalaman);
+    }
+
+    function gantiHalaman(arah) { halamanSaatIni += arah; renderHalamanTabel(); }
+    
+    function cariDataTabel() {
+      var kataKunci = document.getElementById("input-pencarian").value.toLowerCase();
+      dataTampil = dataMaster.filter(function(row) { return row.id_izin.toLowerCase().includes(kataKunci) || row.kategori.toLowerCase().includes(kataKunci) || row.tenant.toLowerCase().includes(kataKunci) || row.detail.toLowerCase().includes(kataKunci) || row.status.toLowerCase().includes(kataKunci); });
+      halamanSaatIni = 1; renderHalamanTabel();
+    }
+
+    async function lacakIzinTamu() {
+      var id = document.getElementById("input-tracker-tamu").value.trim().toUpperCase();
+      if(!id) return alert("Masukkan ID Izin terlebih dahulu!");
+      
+      document.getElementById("btn-lacak").innerText = "Mencari...";
+      document.getElementById("tabel-lacak-tamu").innerHTML = "<tr><td colspan='7' class='text-center py-4'>Sedang melacak data di sistem...</td></tr>";
+      
+      const res = await callBackend('cekStatusIzinTamu', { idIzin: id });
+      
+      document.getElementById("btn-lacak").innerText = "🔍 Cari Izin";
+      var tbody = document.getElementById("tabel-lacak-tamu");
+      if(res.status === 'gagal' || res.status === 'error') {
+        tbody.innerHTML = `<tr><td colspan='7' class='text-center text-danger py-4 fw-bold'>❌ ${res.pesan}</td></tr>`;
+      } else {
+        var r = res.data;
+        var badgeColor = "bg-secondary"; if(r.status === "Approved") badgeColor = "bg-success"; else if(r.status === "Rejected") badgeColor = "bg-danger"; else if(r.status === "Need Revise") badgeColor = "bg-warning text-dark";
+        var arrAppv = r.approver ? r.approver.split(",") : [];
+        var teksStatus = r.status; if(r.status === "Pending" || r.status === "Need Revise") teksStatus = r.status + " (" + arrAppv.length + "/2)";
+        
+        var detailAman = r.detail.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+        var adaPesanBaru = false; var pTerakhir = r.pengirim_terakhir || "";
+        if (pTerakhir.includes("Admin") || pTerakhir.includes("Dept")) adaPesanBaru = true;
+        var teksDiskusi = "💬 Diskusi";
+        if (adaPesanBaru) teksDiskusi += ' <span class="badge bg-danger rounded-pill ms-1">New</span>';
+        var tombolAksi = `<button class="btn btn-sm btn-outline-dark mb-1 d-block w-100 fw-bold position-relative" onclick="bukaDiskusi('${r.id_izin}', '${r.status}', '${badgeColor}')">${teksDiskusi}</button>`;
+        if (r.status === "Approved") { 
+          tombolAksi += `<button class="btn btn-sm btn-primary mb-1 d-block w-100 fw-bold" onclick="tampilkanSuratIzin('${r.id_izin}', '${r.kategori}', '${r.tenant}', '${detailAman}', '${r.tanggal}')">📄 Lihat Surat</button>`;
+        }
+        tbody.innerHTML = `<tr><td><strong>${r.id_izin}</strong></td><td>${r.kategori}</td><td>${r.tenant}</td><td>${r.detail}</td><td>${r.tanggal}</td><td><span class="badge ${badgeColor}">${teksStatus}</span></td><td>${tombolAksi}</td></tr>`;
+      }
+    }
+
+    var modalDiskusi = new bootstrap.Modal(document.getElementById('modalDiskusi'));
+    
+    async function bukaDiskusi(idIzin, status, badgeClass) {
+      currentIzinId = idIzin; document.getElementById("detail-id").innerText = idIzin;
+      document.getElementById("detail-status").className = "badge " + badgeClass; document.getElementById("detail-status").innerText = status;
+      document.getElementById("area-chat").innerHTML = "<div class='text-center'><small>Memuat diskusi...</small></div>";
+      modalDiskusi.show(); 
+      
+      const pesan = await callBackend('ambilDiskusi', { idIzin: idIzin });
+      renderChat(pesan);
+    }
+
+    function renderChat(pesan) {
+      var box = document.getElementById("area-chat"); box.innerHTML = "";
+      if(!pesan || pesan.length === 0) {
+        box.innerHTML = "<div class='text-center text-muted'><small>Belum ada pesan.</small></div>";
+      } else {
+        pesan.forEach(function(msg) { 
+          var isAdmin = msg.pengirim.includes("Admin") || msg.pengirim.includes("Dept"); 
+          var div = document.createElement("div"); 
+          div.className = "msg-bubble " + (isAdmin ? "msg-admin" : ""); 
+          div.innerHTML = `<small class="fw-bold text-primary">${msg.pengirim}</small> <small class="text-muted" style="float:right;">${msg.waktu}</small><br><span>${msg.pesan}</span>`; 
+          box.appendChild(div); 
+        });
+        box.scrollTop = box.scrollHeight;
+      }
+    }
+
+    async function kirimPesan() {
+      var input = document.getElementById("input-pesan").value.trim();
+      if(!input) return;
+      var role = sessionStorage.getItem("userRole"); 
+      var namaPengirim = role === "Guest" ? "Tamu (" + sessionStorage.getItem("idTenant") + ")" : role + " (" + sessionStorage.getItem("nama") + ")";
+      document.getElementById("input-pesan").value = "";
+      document.getElementById("area-chat").innerHTML += `<div class="text-center text-muted"><small>Mengirim...</small></div>`;
+      
+      await callBackend('simpanPesanDiskusi', { idIzin: currentIzinId, pengirim: namaPengirim, pesan: input });
+      
+      if(role === "Guest") lacakIzinTamu(); else loadTabelRiwayat(); 
+      
+      const pesanBaru = await callBackend('ambilDiskusi', { idIzin: currentIzinId });
+      renderChat(pesanBaru); 
+    }
+
+    async function approveSurat(idIzin, userRole) { 
+      if(confirm("Setujui izin ini?")) { 
+        document.getElementById("tabel-riwayat").innerHTML = "<tr><td colspan='7' class='text-center py-4'>Memproses...</td></tr>";
+        const res = await callBackend('approveSuratIzin', { idIzin: idIzin, roleApprover: userRole });
+        alert(res.pesan); 
+        loadTabelRiwayat(); 
+      } 
+    }
+
+    async function rejectSurat(idIzin) { 
+      var alasan = prompt("Masukkan alasan penolakan:");
+      if(alasan !== null) { 
+        document.getElementById("tabel-riwayat").innerHTML = "<tr><td colspan='7' class='text-center py-4'>Memproses penolakan...</td></tr>";
+        var namaPengirim = sessionStorage.getItem("userRole") + " (" + sessionStorage.getItem("nama") + ")";
+        
+        // Simpan pesan penolakan dan reject
+        await callBackend('simpanPesanDiskusi', { idIzin: idIzin, pengirim: namaPengirim, pesan: "Izin DITOLAK. Alasan: " + (alasan ? alasan : "Tidak memenuhi syarat.") });
+        const res = await callBackend('rejectSuratIzin', { idIzin: idIzin });
+        
+        alert(res.pesan); 
+        loadTabelRiwayat(); 
+      } 
+    }
+
+    var modalSurat = new bootstrap.Modal(document.getElementById('modalSuratIzin'));
+    function tampilkanSuratIzin(id, kategori, tenant, detail, tanggal) {
+      document.getElementById('surat-id').innerText = id;
+      document.getElementById('surat-kategori').innerText = "Izin " + kategori; document.getElementById('surat-tenant').innerText = tenant; document.getElementById('surat-detail').innerText = detail; document.getElementById('surat-tanggal').innerText = tanggal; modalSurat.show();
+    }
+  </script>
+</body>
+</html>
